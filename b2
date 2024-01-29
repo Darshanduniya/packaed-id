@@ -1,0 +1,6 @@
+import re
+
+with open("your_file.txt", "r") as f:
+    for line in f:
+        match = re.findall(r"%([^%]+)%([^%]+)", line)[0][1] 
+        print(match)

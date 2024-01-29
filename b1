@@ -1,0 +1,38 @@
+from airflow import DAG
+from airflow.operators.ssh import SSHOperator
+from airflow.operators.python import PythonOperator
+from datetime import datetime
+
+dag = DAG(
+    'package_id_dag',
+    start_date=datetime(2024, 1, 29),
+    schedule_interval=None,  # Adjust as needed
+)
+
+def get_package_id_from_file(**kwargs):
+    ti = kwargs['ti']
+    package_id = ti.xcom_pull(task_ids='model_s')
+    return package_id
+
+model_s = SSHOperator(
+    task_id='model_s',
+    ssh_conn='dev_conn',
+    command='python3 /data/dar/file.py duniya A',
+    dag=dag,
+)
+
+get_package_id = PythonOperator(
+    task_id='get_package_id',
+    python_callable=get_package_id_from_file,
+    provide_context=True,
+    dag=dag,
+)
+
+model_restart = SSHOperator(
+    task_id='model_restart',
+    ssh_conn='dev_conn',
+    command=f'python3 /data/dar/file.py duniya A {{{{ ti.xcom_pull(task_ids="get_package_id") }}}}',
+    dag=dag,
+)
+
+model_s >> get_package_id >> model_restart

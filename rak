@@ -1,0 +1,17 @@
+with open('your_file.txt', 'r') as file:
+    # Read each line from the file
+    for line in file:
+        # Find the indices of the first and second '%' symbols
+        first_percent_index = line.find('%')
+        second_percent_index = line.find('%', first_percent_index + 1)
+
+        # Check if both '%' symbols are found in the line
+        if first_percent_index != -1 and second_percent_index != -1:
+            # Extract the characters up to the second '%' symbol
+            extracted_data = line[:second_percent_index + 1].strip()
+
+            # Print or use the extracted data as needed
+            print(extracted_data)
+        else:
+            # Handle the case where either '%' symbol is not found
+            print("Invalid line format: {}".format(line))
